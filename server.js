@@ -1,18 +1,13 @@
 const express = require("express");
-const scrapearCompuTrabajo = require("https://neocities.org/site_files/text_editor?filename=back-scraping%2FscrapearCompuTrabajo.js");
-const app = express();
-const PORT = 3000;
 const cors = require("cors");
+const scrapearCompuTrabajo = require("./scrapearCompuTrabajo.js"); // debe estar local
+const fetch = require("node-fetch");
+
+const app = express();
 
 app.use(cors());
-
 app.use(express.json());
-app.use(express.static("public")); // si tu HTML está ahí
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  "https://neocities.org/dashboard?dir=back-scraping%2Foutput",
-  express.static("output")
-);
 
 app.post("/buscar", async (req, res) => {
   const { busqueda } = req.body;
@@ -34,8 +29,9 @@ app.post("/buscar", async (req, res) => {
 
 app.get("/geocode", async (req, res) => {
   const q = req.query.q;
-  if (!q)
+  if (!q) {
     return res.status(400).json({ error: "El parámetro q es obligatorio" });
+  }
 
   try {
     const response = await fetch(
@@ -44,7 +40,7 @@ app.get("/geocode", async (req, res) => {
       )}`,
       {
         headers: {
-          "User-Agent": "TuAppNombre/1.0 (tu-email@ejemplo.com)", // cumple política de Nominatim
+          "User-Agent": "TuAppNombre/1.0 (tu-email@ejemplo.com)",
         },
       }
     );
@@ -61,6 +57,5 @@ app.get("/geocode", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
-});
+// Exporta en vez de escuchar
+module.exports = app;
